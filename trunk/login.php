@@ -2,7 +2,7 @@
     function __autoload($class_name) 
     {
         require_once $class_name . ".php";
-    }        
+    } 
     
     error_reporting(0);
 
@@ -21,8 +21,11 @@
         break;
 
     case 'new': 
-        print $mode;
-        // TODO: formularz rejestracji
+        $tpl = new Templates('templates');
+        
+        $body = $tpl->parse('register');
+        $tpl->set('main', 'body', $body);
+        print $tpl->parse('main');        
         break;
     
     case 'register':
@@ -34,8 +37,8 @@
         $tpl = new Templates('templates');
 
         $page = $tpl->parse('login');
-        print $page;
-    
+        $tpl->set('main', 'body', $page);        
+        print $tpl->parse('main');    
         break;
     }
 ?>
