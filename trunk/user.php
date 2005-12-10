@@ -1,12 +1,22 @@
 <?php
     require_once 'fakedataset.php';
-        
+      
     class user
     {
         private $id;
         private $login;
         private $email;
          
+        /*
+         * login
+         * passwd
+         *
+         * podanie login i passwd pozwala wyszukac uzytkownika w bazie
+         * jezeli zaden z parametrow nie zostanie podany uzytkownik bedzie
+         * tworzony w oparciu o zalogowanego (jezeli takowy istnieje)
+         *
+         * w przypadku bledow rzucane sa wyjatki
+         */
         function __construct($login='', $passwd='')        
         {            
             // sprawdzenie czy uzytkownik juz sie zalogowal            
@@ -42,11 +52,17 @@
             }
         }
         
+        /*
+         * zwraca id uzytkownika
+         */
         function get_id()
         {
             return $this->id;            
         }
         
+        /*
+         * zwraca login uzytkownika
+         */
         function get_login()
         {
             return $this->login;
