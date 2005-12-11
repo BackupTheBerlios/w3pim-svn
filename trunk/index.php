@@ -13,5 +13,8 @@
         header("Location: login.php");
     }
        
-    print 'Hello stranger calling himself <i>' . $u->get_login() . '</i>'; 
+    $m = 'Hello stranger calling himself <i>' . $u->get_login() . '</i>';
+    $tpl = new Templates('templates');
+    $tpl->set('main', 'body', $m);
+    print $tpl->parse('main');         
 ?>

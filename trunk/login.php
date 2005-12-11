@@ -6,7 +6,7 @@
     
     error_reporting(0);
 
-    $mode = $_GET['m'];
+    $mode = $_GET['m'];    
     switch ($mode) {
     case 'enter':
         $login = $_POST['login'];
@@ -19,7 +19,7 @@
             header("Location: ?m=new");
         }
         break;
-
+                                                                              
     case 'new': 
         $tpl = new Templates('templates');
         
@@ -29,9 +29,35 @@
         break;
     
     case 'register':
-        print $mode;
-        // TODO: zarejestrowanie usera
+        $l = $_POST['login'];
+        $pm = $_POST['pass_main'];
+        $pc = $_POST['pass_conf'];
+        $e = $_POST['email'];
+        
+        try {
+            if (strlen($l) < 1)
+                throw new Exception('Nie podano identyfikatora użytkownika.');                    
+            if ($pm == '' or $pc == '')
+                throw new Exception('Żadne z podanych haseł nie może być puste.');        
+            if ($pm != $pc)
+                throw new Exception('Podane hasła nie są jednakowe.');
+                        
+            $u = new user($l, $pm, true);
+            header("Location: ?");
+        } catch (Exception $e) {
+            $tpl = new Templates('templates');
+            $tpl->set('error', 'message', $e->getMessage());
+            print $tpl->parse('error');
+            exit;   
+        }
         break;
+    
+    case 'logout':        
+        session_start();
+        unset($_SESSION['user']);
+        session_destroy();        
+        header("Location: index.php");           
+        break;           
 
     default:
         $tpl = new Templates('templates');
@@ -42,3 +68,4 @@
         break;
     }
 ?>
+

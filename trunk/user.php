@@ -17,8 +17,24 @@
          *
          * w przypadku bledow rzucane sa wyjatki
          */
-        function __construct($login='', $passwd='')        
+        function __construct($login='', $passwd='', $register=false)        
         {            
+            // rejestracja uzytkownika            
+            if ($register) {
+                $q = "SELECT uzk_id FROM uzytkownicy WHERE uzk_login = '$login'";
+                $ds = new fakedataset($q);
+                $row = $ds->fetch();
+                $ds->close();
+                
+                if (intval($row['uzk_id']) != 0)
+                    throw new Exception('Użytkownik o podanym loginie już istnieje.');
+                
+                $hash = md5($passwd);
+                $q = "INSERT INTO uzytkownicy (uzk_id, uzk_login, uzk_haslo) " .
+                        "VALUES ('NULL', '$login', '$hash')";
+                $ds = new fakedataset($q);      
+            }           
+            
             // sprawdzenie czy uzytkownik juz sie zalogowal            
             if (($login == '') and ($passwd == '')) {
                 session_start();

@@ -10,7 +10,7 @@
         var $query;
         var $result;
 		
-		function fakedataset($q, $all)
+		function fakedataset($q, $all=true)
 		{
 			$this->conn = null;
             $this->query = $q;
@@ -28,10 +28,13 @@
 			return $this->conn;				
 		}
 		
-		function close()
-		{
-			mysql_close($this->conn);	
-		}
+        function close()
+        {
+            if (isset($this->result))
+                mysql_free_result($this->result);
+            if (isset($this->conn))
+                mysql_close($this->conn);
+        }
 		
 		function select_db()
 		{
@@ -50,11 +53,6 @@
 			if ($row == null)
 				mysql_free_result($this->result);
 			return $row;	
-		}
-		
-		function free($res)
-		{
-			mysql_free_result($res);
-		}		
+		}	
 	};
 ?>
