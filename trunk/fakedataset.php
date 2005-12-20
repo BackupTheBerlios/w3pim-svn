@@ -1,10 +1,11 @@
 <?php
+        require_once 'globals.php';
 	class fakedataset
 	{		
-		var $srv = "localhost";
-		var $db = "mysql";
-		var $login = "root";
-		var $passwd = "root";		
+		var $srv = $GLOBALS['xhost'];
+		var $db = $GLOBALS['xdb'];
+		var $login = $GLOBALS['xlogin'];
+		var $passwd = $GLOBALS['xpasswd'];		
 		
 		var $conn;
         var $query;

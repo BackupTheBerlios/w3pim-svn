@@ -1,8 +1,8 @@
 <?PHP
       require_once 'globals.php';
 //uzytkownik i haslo za pomoca ktorych laczymy sie z baza
-$login = $xlogin;
-$pass = $xpasswd;
+$login = $GLBALS['xlogin'];
+$pass = $GLOBALS['xpasswd'];
 
 //------------------------------------------------------------------------------
 /*funkcja laczy sie z baza danych
@@ -11,11 +11,11 @@ $haslo - haslo uzytkownika bazy danych :)
 */
 function polacz($login, $haslo)
 {
- $dbcnx = @mysql_connect($xhost, $login, $haslo);
+ $dbcnx = @mysql_connect($GLOBALS['xhost'], $login, $haslo);
  if (!$dbcnx) {
    exit('<p>Nie mo¿na skontaktowaæ siê w tej chwili z serwerem bazy danych.</p>');
  }
- if (!@mysql_select_db($xdb)) {
+ if (!@mysql_select_db($GLOBALS['xdb'])) {
    exit('<p>Nie mo¿na w tej chwili zlokalizowaæ bazy danych.</p>');
  }
  return $dbcnx;
