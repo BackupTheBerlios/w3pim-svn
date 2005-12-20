@@ -1,5 +1,14 @@
 <?php
      require_once 'funkcje_kal.inc.php';
+     
+     require_once 'user.php';
+
+	try {
+		$u = new user();
+	} catch (Exception $e) {
+		echo $e->getMessage();
+		exit;
+	}
 ?>
 <HTML>
 <HEAD>
@@ -14,7 +23,7 @@
      $dbcnx = polacz($GLOBALS['login'], $GLOBALS['pass']);
      
      //wyswietlenie nazwy zalogowanego uzytkownika
-     $uzk_id = 1;    //tutaj powinno byc wyciagniecie id uzytkownika ktory jest zalogowany
+     $uzk_id = $u->get_id();
 
      //wyswietlenie nazwy zalogowanego uzytkownika
      $sql = "SELECT uzk_login
@@ -26,6 +35,9 @@
      }
      $res = mysql_fetch_array($res);
      echo '<p>U¿ytkownik:<br>'.$res['uzk_login'].'</p>';
+     
+     //wylogowanie
+     echo '<p><a href="login.php?m=logout">Wyloguj</a></p>';
      
      //wyswietlenie biezacej daty
      echo '<h3 align=center>Dzi¶ jest '.data_napis().'</h3>';

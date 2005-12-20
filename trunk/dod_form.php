@@ -1,5 +1,14 @@
 <?php
      require_once 'funkcje_kal.inc.php';
+     require_once 'globals.php';
+     require_once 'user.php';
+
+	try {
+		$u = new user();
+	} catch (Exception $e) {
+		echo $e->getMessage();
+		exit;
+	}
 ?>
 <HTML>
 <HEAD>
@@ -12,7 +21,7 @@
 <?php
    
    $dbcnx = polacz($GLOBALS['login'], $GLOBALS['pass']);
-   $uzk_id = 1;
+   $uzk_id = $u->get_id();
    
    $edycja = 0;
    

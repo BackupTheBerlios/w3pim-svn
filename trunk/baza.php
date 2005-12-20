@@ -10,14 +10,15 @@
 </HEAD>
 <BODY>
 <?php
+     require_once 'globals.php';
      //nalezy podmienic w tym miejscu uzytkownika i haslo na odpowiednie
-     $user = 'root';
-     $pass = 'krasnal';
-     $dbcnx = @mysql_connect('localhost', $user, $pass);
+     $user = $xlogin;
+     $pass = $xpasswd;
+     $dbcnx = @mysql_connect($xhost, $user, $pass);
      if (!$dbcnx) {
         exit('<p>Nie mo¿na skontaktowaæ siê w tej chwili z serwerem bazy danych.</p>');
      }
-     if (!@mysql_select_db('mysql')) {
+     if (!@mysql_select_db($xdb)) {
         exit('<p>Nie mo¿na w tej chwili zlokalizowaæ bazy danych.</p>');
      }
      $sql = "DROP table if exists zadania";
@@ -39,7 +40,9 @@
      $sql = "CREATE table uzytkownicy (
           uzk_id int not null auto_increment primary key,
           uzk_login varchar(32),
-          uzk_haslo varchar(32))";
+          uzk_haslo varchar(32),
+	  uzk_email varchar(255))";
+
      mysql_query($sql);
      $sql = "CREATE table kategorie (
           kat_id int not null auto_increment primary key,

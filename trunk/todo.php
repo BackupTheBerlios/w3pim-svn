@@ -1,4 +1,5 @@
 <?php
+     require_once 'globals.php';
 	require_once 'user.php';
               try {
               $u = new user();
@@ -19,8 +20,8 @@ $user = $u->get_id();
 echo "Uzytkownik ma id: {$user}";
 
 
-$link = mysql_connect('localhost', 'root', 'krasnal') or die(mysql_error());
-mysql_select_db("mysql") or die(mysql_error()) ;
+$link = mysql_connect($xhost, $xlogin, $xpasswd) or die(mysql_error());
+mysql_select_db($xdb) or die(mysql_error()) ;
 
 if ($HTTP_GET_VARS['akcja'] == 'dodaj')
 {

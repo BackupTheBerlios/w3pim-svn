@@ -2,9 +2,9 @@
 	class fakedataset
 	{		
 		var $srv = "localhost";
-		var $db = "webpim";
-		var $login = "marcin";
-		var $passwd = "";		
+		var $db = "mysql";
+		var $login = "root";
+		var $passwd = "root";		
 		
 		var $conn;
         var $query;
@@ -13,7 +13,7 @@
 		function fakedataset($q, $all=true)
 		{
 			$this->conn = null;
-            $this->query = $q;
+                        $this->query = $q;
 			if ($all) {
                 $this->open();
                 $this->select_db();
