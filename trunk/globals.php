@@ -1,8 +1,8 @@
 <?php
 
 define("XHOST", "localhost");
-define("XLOGIN", "root");
-define("XPASSWD", "root");
-define("XDB", "mysql");
+define("XLOGIN", "marcin");
+define("XPASSWD", "");
+define("XDB", "webpim");
 
 ?>
