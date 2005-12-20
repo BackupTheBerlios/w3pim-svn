@@ -1,11 +1,12 @@
 <?php
         require_once 'globals.php';
+
 	class fakedataset
 	{		
-		var $srv = $GLOBALS['xhost'];
-		var $db = $GLOBALS['xdb'];
-		var $login = $GLOBALS['xlogin'];
-		var $passwd = $GLOBALS['xpasswd'];		
+		var $srv = XHOST;
+		var $db = XDB;
+		var $login = XLOGIN;
+		var $passwd = XPASSWD;		
 		
 		var $conn;
         var $query;
@@ -13,7 +14,8 @@
 		
 		function fakedataset($q, $all=true)
 		{
-			$this->conn = null;
+	
+		        $this->conn = null;
                         $this->query = $q;
 			if ($all) {
                 $this->open();
@@ -40,7 +42,7 @@
 		function select_db()
 		{
 			return mysql_select_db($this->db) or die ("DATABASE ERROR: " 
-                . mysql_error());
+                . mysql_error() . "abc");
 		}
 		
 		function execute()

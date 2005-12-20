@@ -1,6 +1,8 @@
 <?php
-   $xhost = "localhost";
-   $xlogin = "root";
-   $xpasswd = "root";
-   $xdb = "mysql";
+
+define("XHOST", "localhost");
+define("XLOGIN", "root");
+define("XPASSWD", "root");
+define("XDB", "mysql");
+
 ?>

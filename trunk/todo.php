@@ -20,8 +20,8 @@ $user = $u->get_id();
 echo "Uzytkownik ma id: {$user}";
 
 
-$link = mysql_connect($xhost, $xlogin, $xpasswd) or die(mysql_error());
-mysql_select_db($xdb) or die(mysql_error()) ;
+$link = mysql_connect(XHOST, XLOGIN, XPASSWD) or die(mysql_error());
+mysql_select_db(XDB) or die(mysql_error()) ;
 
 if ($HTTP_GET_VARS['akcja'] == 'dodaj')
 {
