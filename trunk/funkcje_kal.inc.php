@@ -313,21 +313,85 @@ function kalendarz_d($d, $m, $r)
 
          //zapytanie ktore zwroca liczbe zadan na dany dzien
          if ($pom != '-') {
+            $pom = intval($pom);
             //tutaj nalezy wyciagnac id zalogowanego uzytkownika
             $uzk_id = $GLOBALS['uzk_id'];
             $data_ts = data_sql($r, mies_num2naz($m), $pom);
             $sql = "SELECT count(*) as ile_zad
                      FROM zadania
-                     WHERE zad_data_rozpoczecia<='$data_ts' and zad_data_zakonczenia>='$data_ts'
-                           and zad_uzk_id='$uzk_id'";
+                     WHERE zad_uzk_id='$uzk_id' and zad_cyklicznosc=0 and
+                           zad_data_rozpoczecia<='$data_ts' and zad_data_zakonczenia>='$data_ts'";
             $res = @mysql_query($sql, $GLOBALS['dbcnx']);
             if (!$res) {
                exit('<p>Problem z pobraniem danych</p>');
             }
             $res = mysql_fetch_array($res);
+            $ile_z = $res['ile_zad'];
+            //dla cyklicznosci "co miesiac"
+            $sql = "SELECT count(*) as ile_zad
+                    FROM zadania
+                    WHERE zad_uzk_id='$uzk_id' and
+                          zad_cyklicznosc=1 and zad_data_cyklicznosc>='$data_ts' and
+                          zad_data_rozpoczecia<='$data_ts' and
+                          DAYOFMONTH(zad_data_rozpoczecia)<=DAYOFMONTH(zad_data_zakonczenia) and
+                          DAYOFMONTH(zad_data_rozpoczecia)<='$pom' and
+                          DAYOFMONTH(zad_data_zakonczenia)>='$pom'";
+            $res = @mysql_query($sql, $GLOBALS['dbcnx']);
+            if (!$res) {
+               exit('<p>Problem z pobraniem danych</p>');
+            }
+            $res = mysql_fetch_array($res);
+            $ile_z += $res['ile_zad'];
+
+            $sql = "SELECT count(*) as ile_zad
+                    FROM zadania
+                    WHERE zad_uzk_id='$uzk_id' and
+                          zad_cyklicznosc=1 and zad_data_cyklicznosc>='$data_ts' and
+                          zad_data_rozpoczecia<='$data_ts' and
+                          DAYOFMONTH(zad_data_rozpoczecia)>DAYOFMONTH(zad_data_zakonczenia) and
+                          (DAYOFMONTH(zad_data_rozpoczecia)<='$pom' or
+                          DAYOFMONTH(zad_data_zakonczenia)>='$pom')";
+            $res = @mysql_query($sql, $GLOBALS['dbcnx']);
+            if (!$res) {
+               exit('<p>Problem z pobraniem danych</p>');
+            }
+            $res = mysql_fetch_array($res);
+            $ile_z += $res['ile_zad'];
+            //dla cyklicznosci "co rok"
+            $sql = "SELECT count(*) as ile_zad
+                    FROM zadania
+                    WHERE zad_uzk_id='$uzk_id' and
+                          zad_cyklicznosc=2 and zad_data_cyklicznosc>='$data_ts' and
+                          zad_data_rozpoczecia<='$data_ts' and
+                          YEAR(zad_data_rozpoczecia)=YEAR(zad_data_zakonczenia) and
+                          SUBDATE(zad_data_rozpoczecia, INTERVAL YEAR(zad_data_rozpoczecia) YEAR)<=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR) and
+                          SUBDATE(zad_data_zakonczenia, INTERVAL YEAR(zad_data_rozpoczecia) YEAR)>=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR)";
+            $res = @mysql_query($sql, $GLOBALS['dbcnx']);
+            if (!$res) {
+               exit('<p>Problem z pobraniem danych</p>');
+            }
+            $res = mysql_fetch_array($res);
+            $ile_z += $res['ile_zad'];
+            
+            $sql = "SELECT count(*) as ile_zad
+                    FROM zadania
+                    WHERE zad_uzk_id='$uzk_id' and
+                          zad_cyklicznosc=2 and zad_data_cyklicznosc>='$data_ts' and
+                          zad_data_rozpoczecia<='$data_ts' and
+                          YEAR(zad_data_rozpoczecia)<YEAR(zad_data_zakonczenia) and
+                          ((SUBDATE(zad_data_rozpoczecia, INTERVAL YEAR(zad_data_rozpoczecia) YEAR)<=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR) and
+                          '0001-01-01 00:00:00'>=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR)) or
+                          (SUBDATE(zad_data_zakonczenia, INTERVAL YEAR(zad_data_zakonczenia) YEAR)>=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR) and
+                          '0000-01-01 00:00:00'<=SUBDATE('$data_ts', INTERVAL YEAR('$data_ts') YEAR)))";
+            $res = @mysql_query($sql, $GLOBALS['dbcnx']);
+            if (!$res) {
+               exit('<p>Problem z pobraniem danych</p>');
+            }
+            $res = mysql_fetch_array($res);
+            $ile_z += $res['ile_zad'];
             //jesli liczba zadan na dany dzien jest rozna od 0 to wyswietl ta liczbe
-            if ($res['ile_zad'] != 0) {
-               echo ' '.$res['ile_zad'].'zad';
+            if ($ile_z != 0) {
+               echo ' '.$ile_z.'zad';
             }
          }
          echo '</td>';
@@ -365,6 +429,10 @@ function dodaj($ed)
  $miesiac_z = $_POST['miesiac_z'];
  $rok_z = $_POST['rok_z'];
  $kategoria = $_POST['kat'];
+ $cyklicznosc = $_POST['cykl'];
+ $dzien_c = $_POST['dzien_c'];
+ $miesiac_c = $_POST['miesiac_c'];
+ $rok_c = $_POST['rok_c'];
  
 
  
@@ -375,10 +443,19 @@ function dodaj($ed)
  } else {
    $powiadomienie = 0;
  }
+ 
+  if ($cyklicznosc == 'co miesi±c') {
+    $cyklicznosc = 1;
+ } else if ($cyklicznosc == 'co rok') {
+   $cyklicznosc = 2;
+ } else {
+   $cyklicznosc = 0;
+ }
 
  //sprawdzenie czy daty sa poprawne
  $m_r = mies_naz2num($miesiac_r);
  $m_z = mies_naz2num($miesiac_z);
+ $m_c = mies_naz2num($miesiac_c);
  if (!checkdate($m_r, $dzien_r, $rok_r)) {
     exit('Z³a data rozpoczêcia');
  }
@@ -387,6 +464,7 @@ function dodaj($ed)
  }
  $data_r = mktime(0, 0, 0, $m_r, $dzien_r, $rok_r);
  $data_z = mktime(0, 0, 0, $m_z, $dzien_z, $rok_z);
+ $data_c = mktime(0, 0, 0, $m_c, $dzien_c, $rok_c);
  if ($data_z < $data_r) {
     exit('Data zakoñczenia jest wcze¶niejsza ni¿ data rozpoczêcia');
  }
@@ -395,8 +473,19 @@ function dodaj($ed)
     exit('Data zakoñczenia jest wcze¶niejsza ni¿ data bie¿±ca');
  }
  
+ if($cyklicznosc == 1) {
+    if(!(($m_z==$m_r && $rok_r==$rok_z) || ($m_z==$m_r+1 && $rok_z==$rok_r && $dzien_z<$dzien_r) || ($m_z==1 && $m_r==12 && $rok_z==$rok_r+1 && $dzien_z<$dzien_r))) {
+      exit('Przy cykliczno¶ci: <i>co miesi±c</i> zadanie nie mo¿e trwaæ ponad miesi±c');
+    }
+ } else if($cyklicznosc == 2) {
+   if(!(($rok_z==$rok_r) || ($rok_z==$rok_r+1 && $m_z<$m_r) || ($rok_z==$rok_r+1 && $m_z==$m_r && $dzien_z<$dzien_r))) {
+     exit('Przy cykliczno¶ci: <i>co rok</i> zadanie nie mo¿e trwaæ ponad rok');
+   }
+ }
+ 
  $data_r = data_sql($rok_r, $miesiac_r, $dzien_r);
  $data_z = data_sql($rok_z, $miesiac_z, $dzien_z);
+ $data_c = data_sql($rok_c, $miesiac_c, $dzien_c);
 
  //tutaj trzeba wyciagnac id zalogowanego uzytkownika
  $uzk_id = $GLOBALS['uzk_id'];
@@ -407,6 +496,8 @@ function dodaj($ed)
  $res = @mysql_query($sql, $GLOBALS['dbcnx']);
  $res = mysql_fetch_array($res);
  $kat = $res['kat_id'];
+ 
+
 
  //jesli jest edycja
  if ($ed) {
@@ -422,9 +513,10 @@ function dodaj($ed)
  } else {
    $sql = "INSERT INTO zadania(zad_tytul, zad_opis,
                      zad_data_rozpoczecia, zad_data_zakonczenia,
-                     zad_powiadomienie, zad_kat_id, zad_uzk_id)
+                     zad_powiadomienie, zad_cyklicznosc, zad_data_cyklicznosc,
+                     zad_kat_id, zad_uzk_id)
            VALUES('$tytul', '$opis', '$data_r', '$data_z', '$powiadomienie',
-                '$kat', '$uzk_id')";
+                '$cyklicznosc', '$data_c', '$kat', '$uzk_id')";
  }
  if (!@mysql_query($sql, $GLOBALS['dbcnx'])) {
    echo("<p>Problem podczas dodawania wpisu</p>");
@@ -446,7 +538,7 @@ function dzien_tbl($dzien, $miesiac, $rok)
      //tabela z danymi
      echo '<table border width=100%>';
           echo '<tr>';
-               echo '<th colspan=5>';
+               echo '<th colspan=6>';
                //"strzalka w lewo"
                $r = $rok;
                $m = $miesiac;
@@ -533,17 +625,19 @@ function dzien_tbl($dzien, $miesiac, $rok)
           echo '<tr>';
                echo '<th width=10%>L.p.</th>';
                echo '<th width=30%>Tytu³</th>';
-               echo '<th width=20%>Kategoria</th>';
-               echo '<th width=20%>Powiadomienie</th>';
-               echo '<th width=20%>Opcje</th>';
+               echo '<th width=15%>Kategoria</th>';
+               echo '<th width=15%>Powiadomienie</th>';
+               echo '<th width=15% >Cykliczno¶æ</th>';
+               echo '<th width=15%>Opcje</th>';
           echo '</tr>';
 
           //tutaj powinno byc id zalogowanego uzytkownika
           $uzk_id = $GLOBALS['uzk_id'];
           $data = data_sql($rok, mies_num2naz($miesiac), $dzien);
-          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow
+          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow, z.zad_cyklicznosc as cykl
                   FROM zadania z, kategorie k
                   WHERE z.zad_kat_id=k.kat_id and z.zad_uzk_id='$uzk_id'
+                        and z.zad_cyklicznosc=0
                         and z.zad_data_rozpoczecia<='$data' and z.zad_data_zakonczenia>='$data'";
           $wyniki = mysql_query($sql, $GLOBALS['dbcnx']);
           $i = 1;
@@ -562,6 +656,187 @@ function dzien_tbl($dzien, $miesiac, $rok)
                        echo 'Tak';
                      }
                      echo '</td>';
+                     echo '<td>';
+                     if ($wynik['cykl'] == 0) {
+                        echo '---';
+                     } else if ($wynik['cykl'] == 1) {
+                       echo 'co miesi±c';
+                     } else {
+                       echo 'co rok';
+                     }
+                     echo '</td>';
+                     //tutaj beda linki do edycji i usuniecia
+                     $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$wynik['id'];
+                     echo '<td>';
+                     echo '<a href='.$edycja.'>Edytuj</a> ';
+                     echo '<a href='.$url.'&amp;id_u='.$wynik['id'].'>Usuñ</a>';
+                     echo'</td>';
+                echo '</tr>';
+                $i++;
+          }
+          //cyklicznosc co miesiac
+          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow, z.zad_cyklicznosc as cykl
+                  FROM zadania z, kategorie k
+                  WHERE z.zad_uzk_id='$uzk_id' and z.zad_kat_id=k.kat_id and
+                          z.zad_cyklicznosc=1 and z.zad_data_cyklicznosc>='$data' and
+                          z.zad_data_rozpoczecia<='$data' and
+                          DAYOFMONTH(z.zad_data_rozpoczecia)<=DAYOFMONTH(z.zad_data_zakonczenia) and
+                          DAYOFMONTH(z.zad_data_rozpoczecia)<='$dzien' and
+                          DAYOFMONTH(z.zad_data_zakonczenia)>='$dzien'";
+          $wyniki = mysql_query($sql, $GLOBALS['dbcnx']);
+          while ($wynik = mysql_fetch_array($wyniki)) {
+                echo '<tr>';
+                     echo '<td>'.$i.'</td>';
+                     //tutaj bedzie link do pelnego ogladniecia
+                     echo '<td>';
+                     echo '<a href='.$url_z.'&amp;zad_id='.$wynik['id'].'>'.$wynik['tytul'].'</a>';
+                     echo '</td>';
+                     echo '<td>'.$wynik['kategoria'].'</td>';
+                     echo '<td>';
+                     if ($wynik['pow'] == 0) {
+                        echo 'Nie';
+                     } else {
+                       echo 'Tak';
+                     }
+                     echo '</td>';
+                     echo '<td>';
+                     if ($wynik['cykl'] == 0) {
+                        echo '---';
+                     } else if ($wynik['cykl'] == 1) {
+                       echo 'co miesi±c';
+                     } else {
+                       echo 'co rok';
+                     }
+                     echo '</td>';
+                     //tutaj beda linki do edycji i usuniecia
+                     $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$wynik['id'];
+                     echo '<td>';
+                     echo '<a href='.$edycja.'>Edytuj</a> ';
+                     echo '<a href='.$url.'&amp;id_u='.$wynik['id'].'>Usuñ</a>';
+                     echo'</td>';
+                echo '</tr>';
+                $i++;
+          }
+          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow, z.zad_cyklicznosc as cykl
+                  FROM zadania z, kategorie k
+                  WHERE z.zad_uzk_id='$uzk_id' and z.zad_kat_id=k.kat_id and
+                          z.zad_cyklicznosc=1 and z.zad_data_cyklicznosc>='$data' and
+                          z.zad_data_rozpoczecia<='$data' and
+                          DAYOFMONTH(z.zad_data_rozpoczecia)>DAYOFMONTH(z.zad_data_zakonczenia) and
+                          (DAYOFMONTH(z.zad_data_rozpoczecia)<='$dzien' or
+                          DAYOFMONTH(z.zad_data_zakonczenia)>='$dzien')";
+          $wyniki = mysql_query($sql, $GLOBALS['dbcnx']);
+          while ($wynik = mysql_fetch_array($wyniki)) {
+                echo '<tr>';
+                     echo '<td>'.$i.'</td>';
+                     //tutaj bedzie link do pelnego ogladniecia
+                     echo '<td>';
+                     echo '<a href='.$url_z.'&amp;zad_id='.$wynik['id'].'>'.$wynik['tytul'].'</a>';
+                     echo '</td>';
+                     echo '<td>'.$wynik['kategoria'].'</td>';
+                     echo '<td>';
+                     if ($wynik['pow'] == 0) {
+                        echo 'Nie';
+                     } else {
+                       echo 'Tak';
+                     }
+                     echo '</td>';
+                     echo '<td>';
+                     if ($wynik['cykl'] == 0) {
+                        echo '---';
+                     } else if ($wynik['cykl'] == 1) {
+                       echo 'co miesi±c';
+                     } else {
+                       echo 'co rok';
+                     }
+                     echo '</td>';
+                     //tutaj beda linki do edycji i usuniecia
+                     $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$wynik['id'];
+                     echo '<td>';
+                     echo '<a href='.$edycja.'>Edytuj</a> ';
+                     echo '<a href='.$url.'&amp;id_u='.$wynik['id'].'>Usuñ</a>';
+                     echo'</td>';
+                echo '</tr>';
+                $i++;
+          }
+          //cyklicznosc co rok
+          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow, z.zad_cyklicznosc as cykl
+                  FROM zadania z, kategorie k
+                  WHERE z.zad_kat_id=k.kat_id and z.zad_uzk_id='$uzk_id' and
+                        z.zad_cyklicznosc=2 and z.zad_data_cyklicznosc>='$data' and
+                        z.zad_data_rozpoczecia<='$data' and
+                        YEAR(z.zad_data_rozpoczecia)=YEAR(z.zad_data_zakonczenia) and
+                        SUBDATE(z.zad_data_rozpoczecia, INTERVAL YEAR(z.zad_data_rozpoczecia) YEAR)<=SUBDATE('$data', INTERVAL YEAR('$data') YEAR) and
+                        SUBDATE(z.zad_data_zakonczenia, INTERVAL YEAR(z.zad_data_rozpoczecia) YEAR)>=SUBDATE('$data', INTERVAL YEAR('$data') YEAR)";
+          $wyniki = mysql_query($sql, $GLOBALS['dbcnx']);
+          while ($wynik = mysql_fetch_array($wyniki)) {
+                echo '<tr>';
+                     echo '<td>'.$i.'</td>';
+                     //tutaj bedzie link do pelnego ogladniecia
+                     echo '<td>';
+                     echo '<a href='.$url_z.'&amp;zad_id='.$wynik['id'].'>'.$wynik['tytul'].'</a>';
+                     echo '</td>';
+                     echo '<td>'.$wynik['kategoria'].'</td>';
+                     echo '<td>';
+                     if ($wynik['pow'] == 0) {
+                        echo 'Nie';
+                     } else {
+                       echo 'Tak';
+                     }
+                     echo '</td>';
+                     echo '<td>';
+                     if ($wynik['cykl'] == 0) {
+                        echo '---';
+                     } else if ($wynik['cykl'] == 1) {
+                       echo 'co miesi±c';
+                     } else {
+                       echo 'co rok';
+                     }
+                     echo '</td>';
+                     //tutaj beda linki do edycji i usuniecia
+                     $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$wynik['id'];
+                     echo '<td>';
+                     echo '<a href='.$edycja.'>Edytuj</a> ';
+                     echo '<a href='.$url.'&amp;id_u='.$wynik['id'].'>Usuñ</a>';
+                     echo'</td>';
+                echo '</tr>';
+                $i++;
+          }
+          $sql = "SELECT z. zad_id as id, z.zad_tytul as tytul, k.kat_nazwa as kategoria, z.zad_powiadomienie as pow, z.zad_cyklicznosc as cykl
+                  FROM zadania z, kategorie k
+                  WHERE z.zad_kat_id=k.kat_id and z.zad_uzk_id='$uzk_id' and
+                        z.zad_cyklicznosc=2 and z.zad_data_cyklicznosc>='$data' and
+                        z.zad_data_rozpoczecia<='$data' and
+                        YEAR(z.zad_data_rozpoczecia)<YEAR(z.zad_data_zakonczenia) and
+                        ((SUBDATE(z.zad_data_rozpoczecia, INTERVAL YEAR(z.zad_data_rozpoczecia) YEAR)<=SUBDATE('$data', INTERVAL YEAR('$data') YEAR) and
+                        '0001-01-01 00:00:00'>=SUBDATE('$data', INTERVAL YEAR('$data') YEAR)) or
+                        (SUBDATE(z.zad_data_zakonczenia, INTERVAL YEAR(z.zad_data_zakonczenia) YEAR)>=SUBDATE('$data', INTERVAL YEAR('$data') YEAR) and
+                        '0000-01-01 00:00:00'<=SUBDATE('$data', INTERVAL YEAR('$data') YEAR)))";
+          $wyniki = mysql_query($sql, $GLOBALS['dbcnx']);
+          while ($wynik = mysql_fetch_array($wyniki)) {
+                echo '<tr>';
+                     echo '<td>'.$i.'</td>';
+                     //tutaj bedzie link do pelnego ogladniecia
+                     echo '<td>';
+                     echo '<a href='.$url_z.'&amp;zad_id='.$wynik['id'].'>'.$wynik['tytul'].'</a>';
+                     echo '</td>';
+                     echo '<td>'.$wynik['kategoria'].'</td>';
+                     echo '<td>';
+                     if ($wynik['pow'] == 0) {
+                        echo 'Nie';
+                     } else {
+                       echo 'Tak';
+                     }
+                     echo '</td>';
+                     echo '<td>';
+                     if ($wynik['cykl'] == 0) {
+                        echo '---';
+                     } else if ($wynik['cykl'] == 1) {
+                       echo 'co miesi±c';
+                     } else {
+                       echo 'co rok';
+                     }
+                     echo '</td>';
                      //tutaj beda linki do edycji i usuniecia
                      $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$wynik['id'];
                      echo '<td>';
@@ -573,7 +848,7 @@ function dzien_tbl($dzien, $miesiac, $rok)
           }
           //pusty wiersz dla dodawania
           echo '<tr>';
-               echo '<td> </td><td> </td><td> </td><td> </td>';
+               echo '<td> </td><td> </td><td> </td><td> </td><td> </td>';
                echo '<td><a href="dod_form.php?rok=';
                echo $rok;
                echo '&amp;mies=';
@@ -604,7 +879,11 @@ function dod_e_form($dzien, $miesiac, $rok, $edycja, $id_e)
                   date_format(z.zad_data_zakonczenia, '%c') as mies_z,
                   date_format(z.zad_data_zakonczenia, '%Y') as rok_z,
                   z.zad_powiadomienie as pow,
-                  k.kat_nazwa as kategoria
+                  k.kat_nazwa as kategoria,
+                  date_format(z.zad_data_cyklicznosc, '%e') as dzien_c,
+                  date_format(z.zad_data_cyklicznosc, '%c') as mies_c,
+                  date_format(z.zad_data_cyklicznosc, '%Y') as rok_c,
+                  z.zad_cyklicznosc as cykl
            FROM zadania z, kategorie k
            WHERE z.zad_id='$id_e' and
                  z.zad_kat_id=k.kat_id";
@@ -614,7 +893,9 @@ function dod_e_form($dzien, $miesiac, $rok, $edycja, $id_e)
  
 echo '<form action="';
 echo $url;
-echo '" method=post>';
+echo '" method=post NAME="formularz" onsubmit="';
+echo "if (document.formularz.tytul.value == '') { alert('Proszê wype³niæ Tytu³!'); return false }";
+echo '">';
       echo '<table>';
       echo '<tr><th align=left>Data rozpoczecia:</th>';
           echo '<td><select name=dzien_r>';
@@ -748,12 +1029,84 @@ echo '" method=post>';
           echo '<td><textarea name="opis" rows=10 cols=50>'.$res['opis'].'</textarea></td>';
       echo '</tr>';
       echo '<tr><th align=left valign=top>Cykliczno¶æ:</th>';
-          echo '<td><input type="radio" name="cyklicznosc" value="raz" checked>Raz<br>';
-              echo '<input type="radio" name="cyklicznosc" value="dzien">Codziennie<br>';
-              echo '<input type="radio" name="cyklicznosc" value="tydzien">Co tydzieñ<br>';
-              echo '<input type="radio" name="cyklicznosc" value="miesiac">Co miesi±c<br>';
-              echo '<input type="radio" name="cyklicznosc" value="rok">Co rok';
-          echo '</td>';
+        echo '<td>';
+        echo '<table>';
+             //dodac jak jest edycja
+             echo '<tr><td>Powtarza siê:</td>';
+             echo '<td><select name=cykl>';
+             //jesli jest dodawanie
+             if (!$edycja || $res['cykl'] == 0) {
+                echo '<option selected>---------------';
+                echo '<option>co miesi±c';
+                echo '<option>co rok';
+             //jesli dodawanie
+             } else {
+               if ($res['cykl'] == 1) {
+                  echo '<option>---------------';
+                  echo '<option selected>co miesi±c';
+                  echo '<option>co rok';
+               } else {
+                  echo '<option>---------------';
+                  echo '<option>co miesi±c';
+                  echo '<option selected>co rok';
+               }
+             }
+             echo '</select></td></tr>';
+             echo '<tr><td>Do dnia:</td>';
+             echo '<td><select name=dzien_c>';
+                        //jesli jest dodawanie
+                        if (!$edycja) {
+                           for ($i = 1; $i < 32; $i++) {
+                               if ($i == $dzien) {
+                                  echo("<option selected> $i");
+                               } else {
+                                 echo("<option> $i");
+                               }
+                           }
+                        //jesli jest edycja
+                        } else {
+                          for ($i = 1; $i < 32; $i++) {
+                               if ($i == $res['dzien_c']) {
+                                  echo("<option selected> $i");
+                               } else {
+                                 echo("<option> $i");
+                               }
+                           }
+                        }
+                        echo '</select>';
+                        echo '<select name=miesiac_c>';
+                        //jesli jest dodawanie
+                        if (!$edycja) {
+                           for ($i = 1; $i < 13; $i++) {
+                               if ($i == $miesiac) {
+                                  echo '<option selected>'.mies_num2naz($i);
+                               } else {
+                                 echo '<option>'.mies_num2naz($i);
+                                 }
+                           }
+                        //jesli jest edycja
+                        } else {
+                          for ($i = 1; $i < 13; $i++) {
+                               if ($i == $res['mies_c']) {
+                                  echo '<option selected>'.mies_num2naz($i);
+                               } else {
+                                 echo '<option>'.mies_num2naz($i);
+                                 }
+                           }
+                        }
+                        echo '</select>';
+                        echo '<input name="rok_c" value=';
+                        //jesli jest edycja
+                        if ($edycja) {
+                           echo $res['rok_c'];
+                        //jesli jest dodawanie
+                        } else {
+                          echo $rok;
+                        }
+                        echo ' maxlength=4 size=2> </td>';
+             echo '</tr>';
+        echo '</table>';
+        echo '</td>';
       echo '</tr>';
       echo '<tr><th align=left>Powiadomienie:</th>';
           echo '<td><input type="checkbox" name="pow" value="SMS"';
@@ -761,9 +1114,11 @@ echo '" method=post>';
                           if ($edycja && $res['pow']) {
                                 echo ' checked';
                           }
-                     echo '>Poprzez SMS</td>';
+                     echo '> Tak</td>';
       echo '</tr>';
-      echo '<tr><th align=left><input type="submit" value="';
+      echo '<tr><th align=left>';
+      echo '<input type="reset" value="Wyczy¶æ">';
+      echo '<input type="submit" value="';
       if ($edycja) {
          echo 'Edytuj';
       } else {
@@ -795,7 +1150,11 @@ function zad_tbl($dzien, $miesiac, $rok, $id)
                        date_format(z.zad_data_zakonczenia, '%c') as mies_z,
                        date_format(z.zad_data_zakonczenia, '%Y') as rok_z,
                        z.zad_powiadomienie as pow,
-                       k.kat_nazwa as kategoria
+                       k.kat_nazwa as kategoria,
+                       z.zad_cyklicznosc as cykl,
+                       date_format(z.zad_data_cyklicznosc, '%e') as dzien_c,
+                       date_format(z.zad_data_cyklicznosc, '%c') as mies_c,
+                       date_format(z.zad_data_cyklicznosc, '%Y') as rok_c
                 FROM zadania z, kategorie k
                 WHERE z.zad_id='$id' and
                       z.zad_kat_id=k.kat_id";
@@ -823,6 +1182,34 @@ echo '<table border>';
                 echo $res['dzien_z'].' '.mies_num2naz($res['mies_z']).' '.$res['rok_z'];
            echo '</td>';
        echo '</tr>';
+       //cyklicznosc
+       echo '<tr>';
+           echo '<th align=left valign=top>Cykliczno¶æ: </th>';
+           if ($res['cykl'] == 0) {
+              echo '<td>---</td>';
+           } else {
+             echo '<td>';
+             echo '<table>';
+                  echo '<tr><td>Powtarza siê: </td><td>';
+                  if ($res['cykl'] == 1) {
+                     if ($res['dzien_r'] == $res['dzien_z']) {
+                        echo $res['dzien_r'].' ka¿dego miesi±ca</td></tr>';
+                     } else {
+                       echo $res['dzien_r'].'-'.$res['dzien_z'].' ka¿dego miesi±ca</td></tr>';
+                     }
+                  } else {
+                    if ($res['dzien_r'] == $res['dzien_z'] && $res['mies_r'] == $res['mies_z']) {
+                       echo $res['dzien_r'].' '.mies_num2naz($res['mies_r']).' ka¿dego roku</td></tr>';
+                    } else {
+                      echo $res['dzien_r'].' '.mies_num2naz($res['mies_r']).' - '.$res['dzien_z'].' '.mies_num2naz($res['mies_z']).' ka¿dego roku</td></tr>';
+                    }
+                  }
+                  echo '<tr><td>Do dnia: </td>';
+                  echo '<td>'.$res['dzien_c'].' '.mies_num2naz($res['mies_c']).' '.$res['rok_c'].'</td></tr>';
+             echo '</table>';
+             echo '</td>';
+           }
+       echo '</tr>';
        echo '<tr>';
            echo '<th align=left>Tytu³: </th>';
            echo '<td>'.$res['tytul'].'</td>';
@@ -836,10 +1223,6 @@ echo '<table border>';
            echo '<td>'.$opis.'</td>';
        echo '</tr>';
        echo '<tr>';
-           echo '<th align=left>Cykliczno¶æ: </th>';
-           echo '<td><i>Tutaj bedzie info o cyklicznosci</i></td>';
-       echo '</tr>';
-       echo '<tr>';
            echo '<th align=left>Powiadomienie: </th>';
            echo '<td>';
                if ($res['pow']) {
@@ -848,6 +1231,14 @@ echo '<table border>';
                   echo 'Nie';
                }
            echo '</td>';
+       echo '</tr>';
+       echo '<tr>';
+            echo '<th align=left>Opcje</th>';
+            $edycja = 'dod_form.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien.'&amp;id_e='.$id;
+            echo '<td>';
+            echo '<a href='.$edycja.'>Edytuj</a> ';
+            echo '<a href='.$url.'&amp;id_u='.$id.'>Usuñ</a>';
+            echo'</td>';
        echo '</tr>';
 echo '</table>';
 }

@@ -11,14 +11,12 @@
 <BODY>
 <?php
      require_once 'globals.php';
-     //nalezy podmienic w tym miejscu uzytkownika i haslo na odpowiednie
-     $user = $xlogin;
-     $pass = $xpasswd;
-     $dbcnx = @mysql_connect($xhost, $user, $pass);
+
+     $dbcnx = @mysql_connect(XHOST, XLOGIN, XPASSWD);
      if (!$dbcnx) {
         exit('<p>Nie mo¿na skontaktowaæ siê w tej chwili z serwerem bazy danych.</p>');
      }
-     if (!@mysql_select_db($xdb)) {
+     if (!@mysql_select_db(XDB)) {
         exit('<p>Nie mo¿na w tej chwili zlokalizowaæ bazy danych.</p>');
      }
      $sql = "DROP table if exists zadania";
@@ -61,6 +59,8 @@
           zad_data_rozpoczecia datetime,
           zad_data_zakonczenia datetime,
           zad_powiadomienie int,
+          zad_cyklicznosc int,
+          zad_data_cyklicznosc datetime,
           zad_pri_id int,
           zad_kat_id int,
           zad_uzk_id int,

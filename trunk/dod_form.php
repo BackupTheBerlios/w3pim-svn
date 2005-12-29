@@ -42,8 +42,13 @@
        $miesiac = date("m");
        $dzien = date("d");
      }
+     
+     //stworzenie adresu powrotu do dnia
+     $url = 'dzien.php?rok='.$rok.'&amp;mies='.$miesiac.'&amp;dzien='.$dzien;
 
  dod_e_form($dzien, $miesiac, $rok, $edycja, $id_e);
+ 
+     echo '<p><a href='.$url.'>Wstecz</a></p>';
 
 ?>
 
