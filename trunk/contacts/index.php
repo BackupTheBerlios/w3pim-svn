@@ -57,14 +57,15 @@
 		$gm->fetchBox(GM_CONTACT, "all", 0);
 		$snapshot = $gm->getSnapshot(GM_CONTACT);
 		$cs = "";
-		foreach($snapshot->contacts as $c) {
+		foreach ($snapshot->contacts as $c) {
 			$tpl->set('contact', array(
 				'id' => $c['id'], 
 				'name' => $c['name'],
 				'email' => $c['email']));
 			$cs = $cs.$tpl->parse('contact');
 		}
-		$tpl->set('main', 'content', $cs);
+		$tpl->set('contacts', 'list', $cs);
+		$tpl->set('main', 'content', $tpl->parse('contacts'));
 		print $tpl->parse('main');
 		break;
 

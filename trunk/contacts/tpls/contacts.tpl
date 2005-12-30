@@ -1,3 +1,3 @@
-<p>
-{name2}, {name1} : {email} - <a href="?mode=single&amp;id={id}">Show</a>
-</p>
+
+<p><a href="?mode=new">Add</a></p>
+{list}
