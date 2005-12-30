@@ -38,7 +38,6 @@
 		break;
 
 	case 'del':
-		// TODO confirm dialog in javascript
 		$id = $_GET['id'];
 		if (!$gm->deleteContact($id))
 			die($gm->lastActionStatus());
