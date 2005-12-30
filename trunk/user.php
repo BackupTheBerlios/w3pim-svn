@@ -1,12 +1,12 @@
 <?php
     require_once 'fakedataset.php';
-      
+
     class user
     {
         private $id;
         private $login;
         private $email;
-         
+
         /*
          * login
          * passwd
@@ -17,25 +17,25 @@
          *
          * w przypadku bledow rzucane sa wyjatki
          */
-        function __construct($login='', $passwd='', $register=false)        
-        {            
-            // rejestracja uzytkownika            
+        function __construct($login='', $passwd='', $register=false)
+        {
+            // rejestracja uzytkownika
             if ($register) {
                 $q = "SELECT uzk_id FROM uzytkownicy WHERE uzk_login = '$login'";
                 $ds = new fakedataset($q);
                 $row = $ds->fetch();
                 $ds->close();
-                
+
                 if (intval($row['uzk_id']) != 0)
                     throw new Exception('Użytkownik o podanym loginie już istnieje.');
-                
+
                 $hash = md5($passwd);
                 $q = "INSERT INTO uzytkownicy (uzk_id, uzk_login, uzk_haslo) " .
                         "VALUES ('NULL', '$login', '$hash')";
-                $ds = new fakedataset($q);      
-            }           
-            
-            // sprawdzenie czy uzytkownik juz sie zalogowal            
+                $ds = new fakedataset($q);
+            }
+
+            // sprawdzenie czy uzytkownik juz sie zalogowal
             if (($login == '') and ($passwd == '')) {
                 session_start();
                 $u = $_SESSION['user'];
@@ -44,44 +44,44 @@
                     $this->login = $u->login;
                     $this->email = $u->email;
                     unset($_SESSION['user']);
-                    $_SESSION['user'] = $this;                    
+                    $_SESSION['user'] = $this;
                 } else
-                    throw new Exception('Brak zalogowanego użytkownika.');                
-            } else {            
+                    throw new Exception('Brak zalogowanego użytkownika.');
+            } else {
                 // pobranie danych o uzytkowniku
                 $q = "SELECT * FROM uzytkownicy WHERE uzk_login = '$login'";
-                $ds = new fakedataset($q, true);                
+                $ds = new fakedataset($q, true);
                 $row = $ds->fetch();
-                
+
                 // porownianie hasel
                 if (strcmp(md5($passwd), $row['uzk_haslo']) <> 0) 
                     throw new Exception('Brak użytkownika o podanych parametrach.');
-                    
+
                 // zapisanie danych uzytkownika
                 $this->id = $row['uzk_id'];
                 $this->login = $login;
                 $this->email = $row['uzk_email'];
-                
+
                 // ustawienie zalogowanego uzytkownika
                 session_start();
                 $_SESSION['user'] = $this;
             }
         }
-        
+
         /*
          * zwraca id uzytkownika
          */
         function get_id()
         {
-            return $this->id;            
+            return $this->id;
         }
-        
+
         /*
          * zwraca login uzytkownika
          */
         function get_login()
         {
             return $this->login;
-        }                
+        }
     };
 ?>
