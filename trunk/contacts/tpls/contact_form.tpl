@@ -1,9 +1,14 @@
 
 <form action="?mode=supply" method="post">
-    <input type="text" name="name" value="{name}" />
-    <input type="text" name="email" value="{email}" />
-    <input type="submit" value="Apply" />
-    <!-- hidden -->
-    <input type="hidden" name="id" value="{id}" />
+	<div>
+		<label for="name">Name:</label><br />
+		<input type="text" id="name" name="name" value="{name}" /><br />
+		<label for="email">E-mail:</label><br />
+		<input type="text" name="email" value="{email}" /><br />
+		<br />
+		<input type="submit" value="Apply" />
+		<!-- hidden -->
+		<input type="hidden" name="id" value="{id}" />
+	</div>
 </form>
 

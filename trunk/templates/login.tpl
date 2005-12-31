@@ -1,16 +1,11 @@
 <form action="?m=enter" method="post">
-  <dt>login:</dt>
-  <dd>
-    <input type="text" name="login" />
-  </dd>
-  <dt>passwd:</dt>
-  <dd>
-    <input type="password" name="passwd" />
-  </dd>
-  <dt></dt>
-  <dd>            
-    <input type="submit" name="submit" value="Zaloguj" />
-  </dd>     
-</form>    
-
-<p><a href="?m=new">Zarejestruj</a></p>
+	<div>	
+		<label for="login">Username:</label><br />
+		<input type="text" id = "login" name="login" /><br />
+		<label for="passwd">Password:</label></br />
+		<input type="password" id="passwd" name="passwd" /><br />
+		<br />
+		<input type="submit" name="submit" value="Enter" />
+	</div>
+</form>
+<p><a href="?m=new">Register</a></p>
