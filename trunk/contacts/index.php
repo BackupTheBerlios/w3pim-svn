@@ -7,7 +7,7 @@
 		die("GMailer not created");
 	$gm->getCookieFromBrowser();
 	$mode = $_GET['mode'];
-	if ((strlen($mode) != 0) and($mode != 'enter') and(!$gm->isConnected()))
+	if ((strlen($mode) != 0) and ($mode != 'enter') and (!$gm->isConnected()))
 		header("Location: ?");
 	
 	switch ($mode) {
@@ -47,6 +47,26 @@
 	case 'supply':
 		// TODO notes & details
 		if (!$gm->editContact($_POST['id'], $_POST['name'], $_POST['email'], ""))
+			die($gm->lastActionStatus());
+		header("Location: ?mode=list");
+		break;
+
+	case 'email':
+		$email = $_GET['email'];
+		if (!isset($email))
+			$email = "";
+		$tpl = new Templates('tpls');
+		$tpl->set('email_form', 'email', $email);
+		$tpl->set('main', 'content', $tpl->parse('email_form'));
+		print $tpl->parse('main');
+		break;
+		
+	case 'send':
+		$email = $_POST['email'];
+		$subj = $_POST['subj'];
+		$body = $_POST['content'];
+
+		if (!$gm->send($email, $subj, $body))
 			die($gm->lastActionStatus());
 		header("Location: ?mode=list");
 		break;
