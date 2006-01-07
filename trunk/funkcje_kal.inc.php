@@ -1120,7 +1120,7 @@ echo '">';
       echo '<input type="reset" value="Wyczy¶æ">';
       echo '<input type="submit" value="';
       if ($edycja) {
-         echo 'Edytuj';
+         echo 'Zatwierd¼';
       } else {
         echo 'Dodaj';
       }
