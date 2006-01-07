@@ -483,6 +483,12 @@ function dodaj($ed)
    }
  }
  
+ if($cyklicznosc != 0) {
+   if($data_z > $data_c) {
+     exit('Data zakoñczenia zadania nie mo¿e byæ pó¼niejsza ni¿ data koñca cykliczno¶ci');
+   }
+ }
+ 
  $data_r = data_sql($rok_r, $miesiac_r, $dzien_r);
  $data_z = data_sql($rok_z, $miesiac_z, $dzien_z);
  $data_c = data_sql($rok_c, $miesiac_c, $dzien_c);
@@ -507,6 +513,8 @@ function dodaj($ed)
                    zad_data_rozpoczecia='$data_r',
                    zad_data_zakonczenia='$data_z',
                    zad_powiadomienie='$powiadomienie',
+                   zad_cyklicznosc='$cyklicznosc',
+                   zad_data_cyklicznosc='$data_c',
                    zad_kat_id='$kat'
             WHERE zad_id='$id_e'";
  //jest dodawanie
@@ -943,7 +951,7 @@ echo '">';
                         echo '<input name="rok_r" value=';
                         //jesli jest edycja
                         if ($edycja) {
-                           echo $res['rok_r'];
+                           echo htmlspecialchars($res['rok_r']);
                         //jesli jest dodawanie
                         } else {
                           echo $rok;
@@ -996,7 +1004,7 @@ echo '">';
                         echo '<input name="rok_z" value=';
                         //jesli jest edycja
                         if ($edycja) {
-                           echo $res['rok_z'];
+                           echo htmlspecialchars($res['rok_z']);
                         } else {
                           echo $rok;
                         }
@@ -1006,7 +1014,7 @@ echo '">';
           echo '<td><input name="tytul"';
                           //jesli jest edycja
                           if ($edycja) {
-                             echo  ' value="'.$res['tytul']. '" ';
+                             echo  ' value="'.htmlspecialchars($res['tytul']). '" ';
                           }
                       echo 'maxlength=255 size=50></td>';
       echo '</tr>';
@@ -1026,12 +1034,11 @@ echo '">';
           echo '</td>';
       echo '</tr>';
       echo '<tr><th align=left valign=top>Opis:</th>';
-          echo '<td><textarea name="opis" rows=10 cols=50>'.$res['opis'].'</textarea></td>';
+          echo '<td><textarea name="opis" rows=10 cols=50>'.htmlspecialchars($res['opis']).'</textarea></td>';
       echo '</tr>';
       echo '<tr><th align=left valign=top>Cykliczno¶æ:</th>';
         echo '<td>';
         echo '<table>';
-             //dodac jak jest edycja
              echo '<tr><td>Powtarza siê:</td>';
              echo '<td><select name=cykl>';
              //jesli jest dodawanie
@@ -1039,7 +1046,7 @@ echo '">';
                 echo '<option selected>---------------';
                 echo '<option>co miesi±c';
                 echo '<option>co rok';
-             //jesli dodawanie
+             //jesli edycja
              } else {
                if ($res['cykl'] == 1) {
                   echo '<option>---------------';
@@ -1098,10 +1105,10 @@ echo '">';
                         echo '<input name="rok_c" value=';
                         //jesli jest edycja
                         if ($edycja) {
-                           echo $res['rok_c'];
+                           echo htmlspecialchars($res['rok_c']);
                         //jesli jest dodawanie
                         } else {
-                          echo $rok;
+                          echo $rok+2;
                         }
                         echo ' maxlength=4 size=6> </td>';
              echo '</tr>';

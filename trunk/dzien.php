@@ -14,7 +14,7 @@
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
 <META NAME="Author" CONTENT="Janusz Paluch">
-<TITLE>Kalendarz</TITLE>
+<TITLE>W3Pim - kalendarz</TITLE>
 </HEAD>
 <BODY>
 
