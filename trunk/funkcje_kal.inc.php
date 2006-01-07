@@ -948,7 +948,7 @@ echo '">';
                         } else {
                           echo $rok;
                         }
-                        echo ' maxlength=4 size=2> </td>';
+                        echo ' maxlength=4 size=6> </td>';
       echo '</tr>';
       echo '<tr><th align=left>Data zakoñczenia:</th>';
           echo '<td><select name=dzien_z>';
@@ -1000,7 +1000,7 @@ echo '">';
                         } else {
                           echo $rok;
                         }
-                        echo ' maxlength=4 size=2> </td>';
+                        echo ' maxlength=4 size=6> </td>';
       echo '</tr>';
       echo '<tr><th align=left>Tytu³:</th>';
           echo '<td><input name="tytul"';
@@ -1103,7 +1103,7 @@ echo '">';
                         } else {
                           echo $rok;
                         }
-                        echo ' maxlength=4 size=2> </td>';
+                        echo ' maxlength=4 size=6> </td>';
              echo '</tr>';
         echo '</table>';
         echo '</td>';
