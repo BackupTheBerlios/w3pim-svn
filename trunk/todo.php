@@ -9,13 +9,7 @@
               }
 
 
-  /*
 
- zapisywanie danych onChange na li¶cie zadañ (AJAX) (opcjonalne)
-
- edycja zadania
-
-*/
 
 
 
@@ -94,7 +88,7 @@ if (($HTTP_GET_VARS['akcja'] == 'dodaj') || ($HTTP_GET_VARS['akcja']== 'zmien'))
         //echo '</HTML>';
 	
 }
-elseif ($HTTP_GET_VARS['akcja'] == 'lista')
+elseif ($HTTP_GET_VARS['akcja'] == 'lista' || $HTTP_GET_VARS['akcja'] == 'anuluj')
 {	
 //	echo '<B>Bedzimy listowac</B><BR>';
 	echo '</BODY>';
@@ -198,7 +192,7 @@ elseif ($HTTP_GET_VARS['akcja'] == 'lista')
 	if ($t = mysql_fetch_array($r))
 		$max_id = $t['maksimum'];
 	$max_id = (int)log10($max_id) + 1;
-//	echo "Max_id wynosi: {$max_id}<BR>";
+
 			
 	$query	= "SELECT zad_id,zad_tytul,zad_opis, zad_postep, zad_data_zakonczenia,
 			kat_nazwa,pri_nazwa from zadania z, uzytkownicy u, kategorie k, 
@@ -208,12 +202,12 @@ elseif ($HTTP_GET_VARS['akcja'] == 'lista')
 
 	$result = mysql_query($query) or die ('Blad SQLa:' . mysql_error());
 	$wiersze = mysql_num_rows($result);
-//	echo "{$wiersze}<BR>";
+
 	$data = getdate();
 
 	echo '<FORM action="todo.php" method="get">';	
 	echo '<TABLE BORDER="0">';
-//	echo '<TABLE >';
+
 
 	echo 	"<TR>
 		<TH>{$link_param_tytul}</TH>
@@ -298,6 +292,7 @@ elseif ($HTTP_GET_VARS['akcja'] == 'lista')
 	echo '</FORM>';
 	echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
 	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
+	echo '<a href="login.php?m=logout">Logout</a>';
 	echo '</BODY>';
         echo '</HTML>';
 }
@@ -484,14 +479,17 @@ elseif ($HTTP_GET_VARS['akcja'] == 'edycja')
 	echo "{$sel_postep}" . '</SELECT>';
 	
 	echo '</TD></TR>';
-	echo '<TR><TD> </TD><TD><input type="submit" value="zmien" name="akcja"></TD></TR>';
+	echo '<TR><TD> </TD>
+             <TD><input type="submit" value="zmien" name="akcja">
+                 <input type="submit" value="anuluj" name="akcja">
+             </TD></TR>';
 
 
 
 	echo '</TABLE>';
 	echo "<input type=hidden value=\"{$HTTP_GET_VARS['doedycji']}\" name=\"zad_id\">";
 	echo '</FORM>';
-
+        echo '<a href="login.php?m=logout">Logout</a>';
            echo '</BODY>';
            echo '</HTML>';
            
@@ -510,10 +508,7 @@ else
 {
 	echo '</BODY>';
         echo '</HTML>';
-        foreach($HTTP_GET_VARS as $k => $w)
-        {
-           echo "{$k} => {$w}<BR>";
-        }	
+        	
 	if ($HTTP_GET_VARS['blad'] == 1)
 	   echo "Pole zawieraj±ce tytu³ nie mo¿e byæ puste!<BR>";
 	if ($HTTP_GET_VARS['blad'] == 2)
@@ -599,6 +594,7 @@ else
 	echo '</FORM>';
 	echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
 	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
+	echo '<a href="login.php?m=logout">Logout</a>';
     	echo '</BODY>';
         echo '</HTML>';
 
