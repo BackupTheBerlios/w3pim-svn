@@ -291,8 +291,9 @@ elseif ($HTTP_GET_VARS['akcja'] == 'lista' || $HTTP_GET_VARS['akcja'] == 'anuluj
 	
 	echo '</FORM>';
 	echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
+	echo '<a href="kalendarz.php">Kalendarz</a><BR>';
 	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
-	echo '<a href="login.php?m=logout">Logout</a>';
+	echo '<a href="login.php?m=logout">Logout</a><BR>';
 	echo '</BODY>';
         echo '</HTML>';
 }
@@ -489,7 +490,10 @@ elseif ($HTTP_GET_VARS['akcja'] == 'edycja')
 	echo '</TABLE>';
 	echo "<input type=hidden value=\"{$HTTP_GET_VARS['doedycji']}\" name=\"zad_id\">";
 	echo '</FORM>';
-        echo '<a href="login.php?m=logout">Logout</a>';
+        echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
+	echo '<a href="kalendarz.php">Kalendarz</a><BR>';
+	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
+	echo '<a href="login.php?m=logout">Logout</a><BR>';
            echo '</BODY>';
            echo '</HTML>';
            
@@ -510,10 +514,15 @@ else
         echo '</HTML>';
         	
 	if ($HTTP_GET_VARS['blad'] == 1)
-	   echo "Pole zawieraj±ce tytu³ nie mo¿e byæ puste!<BR>";
+	   {
+                 echo "Pole zawieraj±ce tytu³ nie mo¿e byæ puste!<BR>";
+	         exit;
+	   }
 	if ($HTTP_GET_VARS['blad'] == 2)
-	   echo "Pole zawieraj±ce opis nie mo¿e byæ puste!<BR>";
-		
+	   {
+                 echo "Pole zawieraj±ce opis nie mo¿e byæ puste!<BR>";
+                 exit;
+           }
         $data = getdate();
 	$sel_dzien = "<SELECT NAME=\"dzien\" >";
 	for ($a = 1; $a <= 31; $a++)
@@ -593,8 +602,9 @@ else
 	
 	echo '</FORM>';
 	echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
+	echo '<a href="kalendarz.php">Kalendarz</a><BR>';
 	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
-	echo '<a href="login.php?m=logout">Logout</a>';
+	echo '<a href="login.php?m=logout">Logout</a><BR>';
     	echo '</BODY>';
         echo '</HTML>';
 

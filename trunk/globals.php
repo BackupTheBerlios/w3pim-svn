@@ -2,7 +2,7 @@
 
 define("XHOST", "localhost");
 define("XLOGIN", "root");
-define("XPASSWD", "");
-define("XDB", "webpim");
+define("XPASSWD", "root");
+define("XDB", "mysql");
 
 ?>
