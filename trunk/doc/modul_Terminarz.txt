@@ -1,0 +1,44 @@
+Modu³ Terminarz
+
+Modu³ Terminarz umo¿liwia:
+·	dodawanie
+·	edycjê
+·	przegl¹danie
+·	usuwanie
+wpisów dotycz¹cych zadañ i zdarzeñ dla okreœlonego dnia lub okreœlonego okresu.
+
+Wpis zadania w systemie zawiera nastêpuj¹ce atrybuty:
+·	datê rozpoczêcia zadania/zdarzenia
+·	datê zakoñczenia zadania/zdarzenia
+·	tytu³ zadania/zdarzenia
+·	kategoriê do której nale¿y zadanie/zdarzenie
+·	opis zadania/zdarzenia
+·	cyklicznoœæ zadania/zdarzenia - opisana poni¿ej
+·	czy ma byæ generowane powiadomienie odnoœnie zadania/zdarzenia (w obecnej wersji jeszcze niezaimplementowane)
+
+Zadanie w systemie mo¿e mieæ nastêpuj¹c¹ wartoœæ atrybutu cyklicznoœæ:
+·	brak - zadanie/zdarzenie jednokrotne
+·	co miesi¹c - zadanie/zdarzenie powtarza siê cyklicznie co miesi¹c
+·	co rok - zadanie/zdarzenie powtarza siê cyklicznie co rok
+W przypadku dwóch ostatnich rodzajów cyklicznoœci konieczne jest podanie daty do której ma siê powtarzaæ dane zadanie/zdarzenie.
+
+Modu³ Terminarz korzysta z funkcji uwierzytelniaj¹cych u¿ytkownika podczas trwania sesji. Wpisy z zadaniami nie s¹ widoczne z modu³u TODO, istniej¹ samodzielnie.
+
+G³ówna strona terminarza zawiera:
+·	wyœwietlon¹ bie¿¹c¹ datê
+·	kalendarz dla danego miesi¹ca
+·	listê miesiêcy
+Lista miesiêcy s³u¿y do przechodzenia pomiêdzy miesi¹cami danego roku. Aby przejœæ rok do przodu lub do ty³u nale¿y u¿yæ "strza³ek" po prawej i lewej stronie wyœwietlonego roku.
+Jeœli na dany dzieñ zaplanowane s¹ jakieœ zadania to po numerze dnia w kalendarzu dla danego miesi¹ca wyœwietlana jest ich iloœæ.
+Aby przejœæ miesi¹c do przodu lub do ty³u nale¿y u¿yæ "strza³ek" po prawej i lewej stronie miesi¹ca wyœwietlanego nad kalendarzem.
+Ze strony g³ównej terminarza mo¿na tak¿e przejœæ do formularza dodawania nowego zadania.
+Klikniêcie na danymi dzieñ powoduje przejœcie do strony z list¹ zadañ/zdarzeñ na dany dzieñ.
+
+Strona z list¹ zadañ na dany dzieñ wyœwietla nastêpuj¹ce informacje o zadaniach:
+·	tytu³
+·	kategoriê
+·	powiadomienie
+·	cyklicznoœæ
+Ka¿de zadanie/zdarzenie zaplanowane na dany dzieñ mo¿na usun¹æ lub edytowaæ. Mo¿na dodaæ nowe zadanie. 
+Z poziomu tej strony mo¿na tak¿e analogicznie jak we wczeœniejszych przypadkach "poruszaæ" siê dzieñ do przodu, dzieñ do ty³u.
+Klikniêcie tytu³u wybranego zadania powoduje przejœcie do strony w której wyœwietlane s¹ wszystkie szczegó³y wybranego zadania.

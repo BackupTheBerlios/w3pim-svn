@@ -16,5 +16,5 @@ Wpis zadania w systemie zawiera atrybuty przydatne do organizowania czasu pracy:
 ·	kategoria zadania
 ·	procent ukoñczenia zadania
 
-Modu³ TODO korzysta z funkcji uwierzytelniaj¹cych u¿ytkownika podczas trwania sesji. Wpisy z zadaniami nie s¹ widoczne z modu³u kalendarz, istniej¹ samodzielnie. 
+Modu³ TODO korzysta z funkcji uwierzytelniaj¹cych u¿ytkownika podczas trwania sesji. Wpisy z zadaniami nie s¹ widoczne z modu³u Terminarz, istniej¹ samodzielnie. 
 System wyœwietlaj¹c zadania podkreœla zadania, które zgodnie z data zakoñczenia powinny byæ ju¿ ukoñczone w 100%, a nie s¹. Jednoczeœnie umo¿liwia zmianê tych atrybutów. W ³atwy sposób mo¿na segregowaæ listê aktualnych zadañ rosn¹co i malej¹c¹ po wszystkich atrybutach (data, tytu³, priorytet, kategoria zadania, procent ukoñczenia zadania)
