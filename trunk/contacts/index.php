@@ -1,6 +1,8 @@
 <?php
 	require_once 'libgmailer.php';
 	require_once '../Templates.php';
+
+	error_reporting(0);
 	
 	$gm = new GMailer();
 	if (!$gm->created)
