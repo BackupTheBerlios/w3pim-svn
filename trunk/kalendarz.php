@@ -14,7 +14,7 @@
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
 <META NAME="Author" CONTENT="Janusz Paluch">
-<TITLE>W3Pim - kalendarz</TITLE>
+<TITLE>W3Pim - terminarz</TITLE>
 </HEAD>
 <BODY>
 
@@ -36,8 +36,11 @@
      $res = mysql_fetch_array($res);
      echo '<p>Użytkownik:<br>'.$res['uzk_login'].'</p>';
      
+     //link do strony glownej
+     echo '<p><a href="index.php">Strona główna</a><br>';
+
      //wylogowanie
-     echo '<p><a href="login.php?m=logout">Wyloguj</a></p>';
+     echo '<a href="login.php?m=logout">Wyloguj</a></p>';
      
      //wyswietlenie biezacej daty
      echo '<h3 align=center>Dziś jest '.data_napis().'</h3>';
