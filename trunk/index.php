@@ -11,12 +11,10 @@
 		$u = new user();
 	} catch (Exception $e) {
 		header("Location: login.php");
-	}
+	}	
 	
-	$m = 'Hello <i>' . $u->get_login() . '</i>';
-	$m = $m . '<p><a href="todo.php">ToDo</a></p>';
-	$m = $m . '<p><a href="kalendarz.php">Kalendarz</a></p>';
 	$tpl = new Templates('templates');
-	$tpl->set('main', 'body', $m);
+	$tpl->set('home', 'user', $u->get_login());
+	$tpl->set('main', 'body', $tpl->parse('home'));
 	print $tpl->parse('main');
 ?>

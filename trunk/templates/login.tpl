@@ -36,4 +36,4 @@
 		<input type="submit" name="submit" value="Enter" />
 	</div>
 </form>
-<p><a href="?m=new">Register</a></p>
+<p><a href="?m=new">Zarejestruj</a></p>

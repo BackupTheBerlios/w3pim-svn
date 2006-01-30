@@ -602,9 +602,8 @@ else
 	
 	echo '</FORM>';
 	echo "<A href=\"todo.php?akcja=lista\">Lista TODO</A><BR>";
-	echo '<a href="kalendarz.php">Kalendarz</a><BR>';
 	echo "<A href=\"todo.php\">Dodaj zdarzenie TODO</A><BR>";
-	echo '<a href="login.php?m=logout">Logout</a><BR>';
+	echo '<a href="login.php?m=logout">Wyloguj</a><BR>';
     	echo '</BODY>';
         echo '</HTML>';
 
